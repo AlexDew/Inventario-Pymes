@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventario - StockSmart</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">📦 StockSmart</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="inventario.html">Inventario</a></li>
+      <li><a href="productos.html">Productos</a></li>
+      <li><a href="reportes.html">Reportes</a></li>
+      <li>
+        <a href="alertas.html">
+          Alertas
+          <span id="badge-alertas" class="nav-badge hidden">0</span>
+        </a>
+      </li>
+    </ul>
+    <div class="redes-rapidas">
+      <a id="link-instagram" href="#" target="_blank" title="Instagram">📷</a>
+      <a id="link-facebook" href="#" target="_blank" title="Facebook">📘</a>
+      <a id="link-whatsapp" href="#" target="_blank" title="WhatsApp">💬</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Control de Inventario</h1>
+
+    <div class="toolbar">
+      <input type="text" id="buscador" placeholder="Buscar por nombre o SKU...">
+      <select id="filtro-categoria">
+        <option value="">Todas las categorías</option>
+      </select>
+      <button id="btn-nuevo-movimiento" class="btn btn-primary">+ Registrar movimiento</button>
+      <button id="btn-nuevo-producto" class="btn btn-secondary">+ Nuevo producto</button>
+    </div>
+
+    <table class="tabla-inventario">
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th>Producto</th>
+          <th>Categoría</th>
+          <th>Stock actual</th>
+          <th>Stock mínimo</th>
+          <th>Estado</th>
+          <th>Precio</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-productos-body">
+        <!-- filas generadas por JS -->
+      </tbody>
+    </table>
+  </main>
+
+  <!-- Modal: registrar movimiento -->
+  <div id="modal-movimiento" class="modal hidden">
+    <div class="modal-content">
+      <h2>Registrar movimiento</h2>
+      <form id="form-movimiento">
+        <label>Producto</label>
+        <select id="mov-producto" required></select>
+
+        <label>Tipo de movimiento</label>
+        <select id="mov-tipo" required>
+          <option value="ENTRADA">Entrada</option>
+          <option value="SALIDA">Salida</option>
+          <option value="MERMA">Merma</option>
+          <option value="AJUSTE">Ajuste</option>
+        </select>
+
+        <label>Cantidad</label>
+        <input type="number" id="mov-cantidad" min="1" required>
+
+        <label>Canal (opcional)</label>
+        <select id="mov-canal">
+          <option value="">-- Ninguno --</option>
+        </select>
+
+        <label>Motivo</label>
+        <input type="text" id="mov-motivo" placeholder="Ej: venta, producto dañado...">
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cerrar-modal-movimiento">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: nuevo producto -->
+  <div id="modal-producto" class="modal hidden">
+    <div class="modal-content">
+      <h2>Nuevo producto</h2>
+      <form id="form-producto">
+        <label>SKU</label>
+        <input type="text" id="prod-sku" required>
+
+        <label>Nombre</label>
+        <input type="text" id="prod-nombre" required>
+
+        <label>Descripción</label>
+        <textarea id="prod-descripcion"></textarea>
+
+        <label>Categoría</label>
+        <select id="prod-categoria" required></select>
+
+        <label>Precio de venta</label>
+        <input type="number" id="prod-precio-venta" step="0.01" required>
+
+        <label>Precio de costo</label>
+        <input type="number" id="prod-precio-costo" step="0.01">
+
+        <label>Stock inicial</label>
+        <input type="number" id="prod-stock-actual" min="0" required>
+
+        <label>Stock mínimo</label>
+        <input type="number" id="prod-stock-minimo" min="0" required>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cerrar-modal-producto">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- Modal: historial de movimientos -->
+  <div id="modal-historial" class="modal hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <h2>Historial de movimientos</h2>
+      <p id="historial-producto-nombre" style="color:#64748b; margin-bottom:1rem;"></p>
+      <table class="tabla-inventario">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Cantidad</th>
+            <th>Stock resultante</th>
+            <th>Canal</th>
+            <th>Motivo</th>
+          </tr>
+        </thead>
+        <tbody id="historial-body"></tbody>
+      </table>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cerrar-modal-historial">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Marca el link activo del navbar automáticamente
+    const paginaActual = "nav-inventario"; // ← cambia esto según la página
+    const linkActivo = document.getElementById(paginaActual);
+    if (linkActivo) linkActivo.classList.add("active");
+
+    // Badge de alertas en todas las páginas
+    fetch("http://localhost:8080/api/alertas?estado=ACTIVA")
+      .then(r => r.json())
+      .then(alertas => {
+        const badge = document.getElementById("badge-alertas");
+        if (badge && alertas.length > 0) {
+          badge.textContent = alertas.length;
+          badge.classList.remove("hidden");
+        }
+      })
+      .catch(() => { }); // silencioso si falla
+
+    // Cargar enlaces de redes sociales en el navbar
+    fetch("http://localhost:8080/api/canales")
+      .then(r => r.json())
+      .then(canales => {
+        canales.forEach(c => {
+          if (c.nombre === "INSTAGRAM" && c.urlEnlace)
+            document.getElementById("link-instagram").href = c.urlEnlace;
+          if (c.nombre === "FACEBOOK" && c.urlEnlace)
+            document.getElementById("link-facebook").href = c.urlEnlace;
+          if (c.nombre === "WHATSAPP" && c.urlEnlace)
+            document.getElementById("link-whatsapp").href = c.urlEnlace;
+        });
+      })
+      .catch(() => { });
+  </script>
+  <script src="js/config.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/inventario.js"></script>
+</body>
+
+</html>
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar sesión - StockSmart</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    }
+
+    .login-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    .login-box .logo {
+      font-size: 2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .login-box h1 {
+      font-size: 1.4rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .login-box p {
+      color: #64748b;
+      font-size: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .login-box label {
+      display: block;
+      text-align: left;
+      margin-bottom: 0.3rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 0.7rem;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .login-box button:hover {
+      background: #2563eb;
+    }
+
+    #error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-box">
+    <div class="logo">📦</div>
+    <h1>StockSmart</h1>
+    <p>Sistema inteligente de inventario para pymes</p>
+
+    <label>Correo electrónico</label>
+    <input type="email" id="email" placeholder="admin@stocksmart.com">
+
+    <label>Contraseña</label>
+    <input type="password" id="password" placeholder="••••••••">
+
+    <button onclick="iniciarSesion()">Ingresar</button>
+    <p id="error-msg">Credenciales incorrectas. Intenta de nuevo.</p>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    // Verificar si ya hay sesión activa
+    if (sessionStorage.getItem("usuario")) {
+      window.location.href = "index.html";
+    }
+
+    async function iniciarSesion() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        // Buscar usuario (en producción esto va con JWT; aquí simplificado para desarrollo)
+        const res = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        if (!res.ok) {
+          document.getElementById("error-msg").style.display = "block";
+          return;
+        }
+
+        const usuario = await res.json();
+        sessionStorage.setItem("usuario", JSON.stringify(usuario));
+        window.location.href = "index.html";
+
+      } catch (error) {
+        document.getElementById("error-msg").style.display = "block";
+      }
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes - StockSmart</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/reportes.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">📦 StockSmart</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="inventario.html">Inventario</a></li>
+            <li><a href="productos.html">Productos</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
+            <li>
+                <a href="alertas.html">
+                    Alertas
+                    <span id="badge-alertas" class="nav-badge hidden">0</span>
+                </a>
+            </li>
+        </ul>
+        <div class="redes-rapidas">
+            <a id="link-instagram" href="#" target="_blank" title="Instagram">📷</a>
+            <a id="link-facebook" href="#" target="_blank" title="Facebook">📘</a>
+            <a id="link-whatsapp" href="#" target="_blank" title="WhatsApp">💬</a>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <!-- ENCABEZADO -->
+        <div class="page-header">
+            <div>
+                <h1>Reportes</h1>
+                <p class="page-subtitle">Análisis de movimientos, stock y rendimiento del inventario</p>
+            </div>
+        </div>
+
+        <!-- TABS DE REPORTES -->
+        <div class="tabs-bar">
+            <button class="tab-btn active" data-tab="movimientos">📋 Movimientos</button>
+            <button class="tab-btn" data-tab="stock">📦 Estado de stock</button>
+            <button class="tab-btn" data-tab="alertas-hist">🔔 Historial alertas</button>
+            <button class="tab-btn" data-tab="ventas-evitadas">💰 Ventas evitadas</button>
+        </div>
+
+        <!-- ======= TAB: MOVIMIENTOS ======= -->
+        <div id="tab-movimientos" class="tab-panel">
+            <div class="reporte-controles">
+                <div class="filtros-reporte">
+                    <div class="form-group-inline">
+                        <label>Producto</label>
+                        <select id="mov-filtro-producto">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                    <div class="form-group-inline">
+                        <label>Tipo</label>
+                        <select id="mov-filtro-tipo">
+                            <option value="">Todos</option>
+                            <option value="ENTRADA">Entrada</option>
+                            <option value="SALIDA">Salida</option>
+                            <option value="MERMA">Merma</option>
+                            <option value="AJUSTE">Ajuste</option>
+                        </select>
+                    </div>
+                    <div class="form-group-inline">
+                        <label>Canal</label>
+                        <select id="mov-filtro-canal">
+                            <option value="">Todos</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="acciones-reporte">
+                    <button class="btn btn-secondary" id="btn-imprimir-mov">🖨️ Imprimir</button>
+                    <button class="btn btn-secondary" id="btn-csv-mov">📥 Exportar CSV</button>
+                </div>
+            </div>
+
+            <!-- Resumen rápido -->
+            <div class="resumen-cards" id="resumen-mov">
+                <div class="resumen-card">
+                    <span class="resumen-num" id="res-entradas">—</span>
+                    <span class="resumen-label">Entradas</span>
+                </div>
+                <div class="resumen-card">
+                    <span class="resumen-num" id="res-salidas">—</span>
+                    <span class="resumen-label">Salidas</span>
+                </div>
+                <div class="resumen-card">
+                    <span class="resumen-num" id="res-mermas">—</span>
+                    <span class="resumen-label">Mermas</span>
+                </div>
+                <div class="resumen-card">
+                    <span class="resumen-num" id="res-ajustes">—</span>
+                    <span class="resumen-label">Ajustes</span>
+                </div>
+            </div>
+
+            <div class="tabla-wrap" id="tabla-mov-wrap">
+                <table class="tabla-reporte" id="tabla-movimientos">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha y hora</th>
+                            <th>Producto</th>
+                            <th>SKU</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Stock resultante</th>
+                            <th>Canal</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-movimientos"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ======= TAB: ESTADO DE STOCK ======= -->
+        <div id="tab-stock" class="tab-panel hidden">
+            <div class="reporte-controles">
+                <div class="filtros-reporte">
+                    <div class="form-group-inline">
+                        <label>Categoría</label>
+                        <select id="stock-filtro-cat">
+                            <option value="">Todas</option>
+                        </select>
+                    </div>
+                    <div class="form-group-inline">
+                        <label>Estado</label>
+                        <select id="stock-filtro-estado">
+                            <option value="">Todos</option>
+                            <option value="OK">Disponible</option>
+                            <option value="BAJO">Stock bajo</option>
+                            <option value="SIN_STOCK">Sin stock</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="acciones-reporte">
+                    <button class="btn btn-secondary" id="btn-imprimir-stock">🖨️ Imprimir</button>
+                    <button class="btn btn-secondary" id="btn-csv-stock">📥 Exportar CSV</button>
+                </div>
+            </div>
+
+            <!-- Valorización del inventario -->
+            <div class="valorizacion-banner" id="valorizacion-banner">
+                <div class="val-item">
+                    <span class="val-label">Valor total inventario</span>
+                    <span class="val-num" id="val-total">—</span>
+                </div>
+                <div class="val-item">
+                    <span class="val-label">Valor al costo</span>
+                    <span class="val-num" id="val-costo">—</span>
+                </div>
+                <div class="val-item">
+                    <span class="val-label">Margen bruto estimado</span>
+                    <span class="val-num" id="val-margen">—</span>
+                </div>
+                <div class="val-item">
+                    <span class="val-label">Productos sin stock</span>
+                    <span class="val-num danger" id="val-sin-stock">—</span>
+                </div>
+            </div>
+
+            <div class="tabla-wrap">
+                <table class="tabla-reporte" id="tabla-stock">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Stock actual</th>
+                            <th>Stock mínimo</th>
+                            <th>Estado</th>
+                            <th>Precio venta</th>
+                            <th>Precio costo</th>
+                            <th>Valor stock (venta)</th>
+                            <th>Margen %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-stock"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ======= TAB: ALERTAS HISTORIAL ======= -->
+        <div id="tab-alertas-hist" class="tab-panel hidden">
+            <div class="reporte-controles">
+                <div class="filtros-reporte">
+                    <div class="form-group-inline">
+                        <label>Estado</label>
+                        <select id="alerta-filtro-estado">
+                            <option value="">Todas</option>
+                            <option value="ACTIVA">Activas</option>
+                            <option value="RESUELTA">Resueltas</option>
+                        </select>
+                    </div>
+                    <div class="form-group-inline">
+                        <label>Tipo</label>
+                        <select id="alerta-filtro-tipo">
+                            <option value="">Todos</option>
+                            <option value="STOCK_BAJO">Stock bajo</option>
+                            <option value="SIN_STOCK">Sin stock</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="acciones-reporte">
+                    <button class="btn btn-secondary" id="btn-imprimir-alertas">🖨️ Imprimir</button>
+                    <button class="btn btn-secondary" id="btn-csv-alertas">📥 Exportar CSV</button>
+                </div>
+            </div>
+
+            <div class="tabla-wrap">
+                <table class="tabla-reporte" id="tabla-alertas-hist">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Mensaje</th>
+                            <th>Estado</th>
+                            <th>Generada</th>
+                            <th>Resuelta</th>
+                            <th>Tiempo respuesta</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-alertas-hist"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ======= TAB: VENTAS EVITADAS ======= -->
+        <div id="tab-ventas-evitadas" class="tab-panel hidden">
+            <div class="reporte-controles">
+                <div class="filtros-reporte"></div>
+                <div class="acciones-reporte">
+                    <button class="btn btn-secondary" id="btn-imprimir-ve">🖨️ Imprimir</button>
+                    <button class="btn btn-secondary" id="btn-csv-ve">📥 Exportar CSV</button>
+                </div>
+            </div>
+
+            <div class="impacto-banner">
+                <div class="impacto-icon">💰</div>
+                <div class="impacto-texto">
+                    <h2 id="ve-total-count">— ventas</h2>
+                    <p>potencialmente evitadas de perder gracias a las alertas</p>
+                    <h3 id="ve-total-valor">S/ —</h3>
+                    <p style="font-size:0.8rem;color:#92400e">en valor estimado protegido</p>
+                </div>
+            </div>
+
+            <div class="tabla-wrap">
+                <table class="tabla-reporte" id="tabla-ve">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th>Producto</th>
+                            <th>Descripción</th>
+                            <th>Valor estimado (S/)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="body-ve"></tbody>
+                    <tfoot>
+                        <tr class="fila-total">
+                            <td colspan="4"><strong>TOTAL</strong></td>
+                            <td id="ve-total-tabla">—</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ÁREA DE IMPRESIÓN (oculta en pantalla, visible al imprimir) -->
+    <div id="print-area" class="print-only"></div>
+
+    <script>
+        // Marca el link activo del navbar automáticamente
+        const paginaActual = "nav-reportes"; // ← cambia esto según la página
+        const linkActivo = document.getElementById(paginaActual);
+        if (linkActivo) linkActivo.classList.add("active");
+
+        // Badge de alertas en todas las páginas
+        fetch("http://localhost:8080/api/alertas?estado=ACTIVA")
+            .then(r => r.json())
+            .then(alertas => {
+                const badge = document.getElementById("badge-alertas");
+                if (badge && alertas.length > 0) {
+                    badge.textContent = alertas.length;
+                    badge.classList.remove("hidden");
+                }
+            })
+            .catch(() => { }); // silencioso si falla
+
+        // Cargar enlaces de redes sociales en el navbar
+        fetch("http://localhost:8080/api/canales")
+            .then(r => r.json())
+            .then(canales => {
+                canales.forEach(c => {
+                    if (c.nombre === "INSTAGRAM" && c.urlEnlace)
+                        document.getElementById("link-instagram").href = c.urlEnlace;
+                    if (c.nombre === "FACEBOOK" && c.urlEnlace)
+                        document.getElementById("link-facebook").href = c.urlEnlace;
+                    if (c.nombre === "WHATSAPP" && c.urlEnlace)
+                        document.getElementById("link-whatsapp").href = c.urlEnlace;
+                });
+            })
+            .catch(() => { });
+    </script>
+    <script src="js/config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/reportes.js"></script>
+</body>
+
+</html>
+</body>
+
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - StockSmart</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/productos.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">📦 StockSmart</a>
+        <ul class="nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="inventario.html">Inventario</a></li>
+            <li><a href="productos.html">Productos</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
+            <li>
+                <a href="alertas.html">
+                    Alertas
+                    <span id="badge-alertas" class="nav-badge hidden">0</span>
+                </a>
+            </li>
+        </ul>
+        <div class="redes-rapidas">
+            <a id="link-instagram" href="#" target="_blank" title="Instagram">📷</a>
+            <a id="link-facebook" href="#" target="_blank" title="Facebook">📘</a>
+            <a id="link-whatsapp" href="#" target="_blank" title="WhatsApp">💬</a>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <!-- ENCABEZADO -->
+        <div class="page-header">
+            <div>
+                <h1>Gestión de Productos</h1>
+                <p class="page-subtitle">Administra el catálogo completo de tu tienda</p>
+            </div>
+            <button class="btn btn-primary btn-lg" id="btn-nuevo">
+                <span>+</span> Nuevo producto
+            </button>
+        </div>
+
+        <!-- BARRA DE FILTROS -->
+        <div class="filtros-bar">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="buscador" placeholder="Buscar por nombre o SKU…">
+            </div>
+            <select id="filtro-categoria">
+                <option value="">Todas las categorías</option>
+            </select>
+            <select id="filtro-estado">
+                <option value="">Todos los estados</option>
+                <option value="OK">Disponible</option>
+                <option value="BAJO">Stock bajo</option>
+                <option value="SIN_STOCK">Sin stock</option>
+            </select>
+            <div class="toggle-vista">
+                <button class="btn-vista active" id="btn-tarjetas" title="Vista tarjetas">⊞</button>
+                <button class="btn-vista" id="btn-lista" title="Vista lista">☰</button>
+            </div>
+        </div>
+
+        <!-- CONTADOR -->
+        <div class="resultados-info">
+            <span id="contador-resultados">Cargando…</span>
+        </div>
+
+        <!-- VISTA TARJETAS -->
+        <div id="vista-tarjetas" class="productos-grid"></div>
+
+        <!-- VISTA LISTA (tabla) -->
+        <div id="vista-lista" class="hidden">
+            <table class="tabla-inventario">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>SKU</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Precio venta</th>
+                        <th>Stock actual</th>
+                        <th>Stock mín.</th>
+                        <th>Estado</th>
+                        <th>Activo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body"></tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <!-- ===== MODAL: CREAR / EDITAR PRODUCTO ===== -->
+    <div id="modal-producto" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2 id="modal-titulo">Nuevo producto</h2>
+                <button class="btn-cerrar-x" id="cerrar-modal">✕</button>
+            </div>
+
+            <form id="form-producto" novalidate>
+                <input type="hidden" id="prod-id">
+
+                <div class="form-grid">
+                    <!-- Columna izquierda -->
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="prod-nombre">Nombre del producto <span class="req">*</span></label>
+                            <input type="text" id="prod-nombre" placeholder="Ej: Auriculares Bluetooth JBL" required>
+                            <span class="form-error" id="err-nombre"></span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prod-sku">Código SKU <span class="req">*</span></label>
+                                <input type="text" id="prod-sku" placeholder="Ej: ELEC-001" required>
+                                <span class="form-error" id="err-sku"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-categoria">Categoría <span class="req">*</span></label>
+                                <select id="prod-categoria" required></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="prod-descripcion">Descripción</label>
+                            <textarea id="prod-descripcion" rows="3"
+                                placeholder="Descripción breve del producto…"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prod-precio-venta">Precio de venta (S/) <span class="req">*</span></label>
+                                <input type="number" id="prod-precio-venta" step="0.01" min="0" placeholder="0.00"
+                                    required>
+                                <span class="form-error" id="err-precio"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-precio-costo">Precio de costo (S/)</label>
+                                <input type="number" id="prod-precio-costo" step="0.01" min="0" placeholder="0.00">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="prod-stock-actual">Stock inicial <span class="req">*</span></label>
+                                <input type="number" id="prod-stock-actual" min="0" placeholder="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="prod-stock-minimo">Stock mínimo <span class="req">*</span></label>
+                                <input type="number" id="prod-stock-minimo" min="0" placeholder="5" required>
+                                <small class="form-hint">Se generará alerta cuando llegue a este nivel</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna derecha: imagen -->
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label for="prod-imagen-url">URL de imagen</label>
+                            <input type="url" id="prod-imagen-url" placeholder="https://ejemplo.com/imagen.jpg">
+                            <small class="form-hint">Pega la URL pública de la imagen del producto</small>
+                        </div>
+                        <div class="imagen-preview-wrap">
+                            <div id="imagen-preview" class="imagen-preview">
+                                <span id="imagen-placeholder">📷<br>Vista previa</span>
+                                <img id="imagen-img" src="" alt="Preview" class="hidden">
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-previsualizar">
+                                Previsualizar imagen
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-sm" id="btn-limpiar-img">
+                                Limpiar
+                            </button>
+                        </div>
+
+                        <!-- Canales de visibilidad -->
+                        <div class="canales-toggle">
+                            <label class="canales-label">Visible en canales</label>
+                            <div id="canales-checks" class="canales-checks-grid"></div>
+                            <small class="form-hint">Se desactivará automáticamente si el stock llega a 0</small>
+                        </div>
+
+                        <!-- Solo en edición: toggle activo -->
+                        <div id="toggle-activo-wrap" class="hidden">
+                            <label class="toggle-label">
+                                <span>Producto activo</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="prod-activo" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                            <small class="form-hint">Desactivar oculta el producto del inventario sin eliminarlo</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Margen bruto calculado -->
+                <div id="margen-info" class="margen-info hidden">
+                    <span>Margen bruto estimado: </span>
+                    <strong id="margen-valor">-</strong>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelar-form">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btn-guardar">Guardar producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: CONFIRMACIÓN DESACTIVAR ===== -->
+    <div id="modal-confirm" class="modal hidden">
+        <div class="modal-content modal-sm">
+            <div class="modal-header">
+                <h2 id="confirm-titulo">Confirmar acción</h2>
+                <button class="btn-cerrar-x" id="cerrar-confirm">✕</button>
+            </div>
+            <p id="confirm-mensaje" style="margin: 1rem 0; color:#475569;"></p>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelar-confirm">Cancelar</button>
+                <button class="btn btn-danger" id="confirmar-accion">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MODAL: VER DETALLE ===== -->
+    <div id="modal-detalle" class="modal hidden">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h2>Detalle del producto</h2>
+                <button class="btn-cerrar-x" id="cerrar-detalle">✕</button>
+            </div>
+            <div id="detalle-contenido" class="detalle-layout"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cerrar-detalle-btn">Cerrar</button>
+                <button class="btn btn-primary" id="editar-desde-detalle">✏️ Editar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Marca el link activo del navbar automáticamente
+        const paginaActual = "nav-productos"; // ← cambia esto según la página
+        const linkActivo = document.getElementById(paginaActual);
+        if (linkActivo) linkActivo.classList.add("active");
+
+        // Badge de alertas en todas las páginas
+        fetch("http://localhost:8080/api/alertas?estado=ACTIVA")
+            .then(r => r.json())
+            .then(alertas => {
+                const badge = document.getElementById("badge-alertas");
+                if (badge && alertas.length > 0) {
+                    badge.textContent = alertas.length;
+                    badge.classList.remove("hidden");
+                }
+            })
+            .catch(() => { }); // silencioso si falla
+
+        // Cargar enlaces de redes sociales en el navbar
+        fetch("http://localhost:8080/api/canales")
+            .then(r => r.json())
+            .then(canales => {
+                canales.forEach(c => {
+                    if (c.nombre === "INSTAGRAM" && c.urlEnlace)
+                        document.getElementById("link-instagram").href = c.urlEnlace;
+                    if (c.nombre === "FACEBOOK" && c.urlEnlace)
+                        document.getElementById("link-facebook").href = c.urlEnlace;
+                    if (c.nombre === "WHATSAPP" && c.urlEnlace)
+                        document.getElementById("link-whatsapp").href = c.urlEnlace;
+                });
+            })
+            .catch(() => { });
+    </script>
+    <script src="js/config.js"></script>
+    <script src="js/navbar.js"></script>
+    <script src="js/productos.js"></script>
+</body>
+
+</html>
+</body>
+
+</html>

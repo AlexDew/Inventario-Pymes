@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas - StockSmart</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <a href="index.html" class="logo">📦 StockSmart</a>
+    <ul class="nav-links">
+      <li><a href="index.html">Dashboard</a></li>
+      <li><a href="inventario.html">Inventario</a></li>
+      <li><a href="productos.html">Productos</a></li>
+      <li><a href="reportes.html">Reportes</a></li>
+      <li>
+        <a href="alertas.html">
+          Alertas
+          <span id="badge-alertas" class="nav-badge hidden">0</span>
+        </a>
+      </li>
+    </ul>
+    <div class="redes-rapidas">
+      <a id="link-instagram" href="#" target="_blank" title="Instagram">📷</a>
+      <a id="link-facebook" href="#" target="_blank" title="Facebook">📘</a>
+      <a id="link-whatsapp" href="#" target="_blank" title="WhatsApp">💬</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>Alertas de stock</h1>
+
+    <div class="toolbar">
+      <button class="btn filtro-btn active" data-estado="ACTIVA">Activas</button>
+      <button class="btn filtro-btn" data-estado="RESUELTA">Resueltas</button>
+      <button class="btn filtro-btn" data-estado="">Todas</button>
+    </div>
+
+    <div id="lista-alertas" class="alertas-lista"></div>
+  </main>
+
+  <script>
+    // Marca el link activo del navbar automáticamente
+    const paginaActual = "nav-alertas"; // ← cambia esto según la página
+    const linkActivo = document.getElementById(paginaActual);
+    if (linkActivo) linkActivo.classList.add("active");
+
+    // Badge de alertas en todas las páginas
+    fetch("http://localhost:8080/api/alertas?estado=ACTIVA")
+      .then(r => r.json())
+      .then(alertas => {
+        const badge = document.getElementById("badge-alertas");
+        if (badge && alertas.length > 0) {
+          badge.textContent = alertas.length;
+          badge.classList.remove("hidden");
+        }
+      })
+      .catch(() => { }); // silencioso si falla
+
+    // Cargar enlaces de redes sociales en el navbar
+    fetch("http://localhost:8080/api/canales")
+      .then(r => r.json())
+      .then(canales => {
+        canales.forEach(c => {
+          if (c.nombre === "INSTAGRAM" && c.urlEnlace)
+            document.getElementById("link-instagram").href = c.urlEnlace;
+          if (c.nombre === "FACEBOOK" && c.urlEnlace)
+            document.getElementById("link-facebook").href = c.urlEnlace;
+          if (c.nombre === "WHATSAPP" && c.urlEnlace)
+            document.getElementById("link-whatsapp").href = c.urlEnlace;
+        });
+      })
+      .catch(() => { });
+  </script>
+  <script src="js/config.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/alertas.js"></script>
+</body>
+
+</html>
+</body>
+
+</html>

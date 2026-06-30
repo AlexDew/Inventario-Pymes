@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StockSmart</title>
+    <link rel="stylesheet" href="css/styles.css?v=3">
+    <link rel="stylesheet" href="css/dashboard.css?v=3">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="index.html" class="logo">📦 StockSmart</a>
+
+        <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <ul class="nav-links">
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="inventario.html">Inventario</a></li>
+            <li><a href="productos.html">Productos</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
+            <li>
+                <a href="alertas.html">
+                    Alertas
+                    <span id="badge-alertas" class="nav-badge hidden">0</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="redes-rapidas">
+            <a id="link-instagram" href="#" target="_blank" title="Instagram">📷</a>
+            <a id="link-facebook" href="#" target="_blank" title="Facebook">📘</a>
+            <a id="link-whatsapp" href="#" target="_blank" title="WhatsApp">💬</a>
+        </div>
+    </nav>
+
+    <main class="container">
+
+        <!-- ENCABEZADO -->
+        <div class="dash-header">
+            <div>
+                <h1>Dashboard General</h1>
+                <p class="page-subtitle" id="fecha-actual"></p>
+            </div>
+            <div class="dash-acciones">
+                <button class="btn btn-secondary" id="btn-refresh">🔄 Actualizar</button>
+            </div>
+        </div>
+
+        <!-- ─── MÉTRICAS PRINCIPALES ─── -->
+        <div class="metrics-grid">
+            <div class="metric-card" id="mc-stock">
+                <div class="metric-icon" style="background:#eff6ff">📊</div>
+                <div class="metric-body">
+                    <span class="metric-label">Unidades en stock</span>
+                    <span class="metric-value" id="total-stock">—</span>
+                    <span class="metric-sub" id="sub-productos">— productos activos</span>
+                </div>
+            </div>
+
+            <div class="metric-card" id="mc-quiebres">
+                <div class="metric-icon" style="background:#fef2f2">⚠️</div>
+                <div class="metric-body">
+                    <span class="metric-label">Quiebres activos</span>
+                    <span class="metric-value danger" id="quiebres-activos">—</span>
+                    <span class="metric-sub" id="sub-quiebres">alertas sin resolver</span>
+                </div>
+            </div>
+
+            <div class="metric-card" id="mc-precision">
+                <div class="metric-icon" style="background:#f0fdf4">✅</div>
+                <div class="metric-body">
+                    <span class="metric-label">Precisión inventario</span>
+                    <span class="metric-value success" id="precision-inventario">—%</span>
+                    <span class="metric-sub">vs. método manual</span>
+                </div>
+            </div>
+
+            <div class="metric-card" id="mc-ventas">
+                <div class="metric-icon" style="background:#fffbeb">💰</div>
+                <div class="metric-body">
+                    <span class="metric-label">Ventas evitadas de perder</span>
+                    <span class="metric-value warning" id="ventas-evitadas-count">—</span>
+                    <span class="metric-sub" id="ventas-evitadas-valor">S/ — en valor protegido</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── ALERTA RÁPIDA (si hay quiebres) ─── -->
+        <div id="alerta-rapida" class="alerta-rapida hidden">
+            <span class="alerta-rapida-icon">🔔</span>
+            <div class="alerta-rapida-texto">
+                <strong id="alerta-rapida-titulo">Atención</strong>
+                <span id="alerta-rapida-msg">Tienes productos con stock crítico</span>
+            </div>
+            <a href="alertas.html" class="btn btn-sm btn-danger">Ver alertas</a>
+        </div>
+
+        <!-- ─── GRÁFICOS PRINCIPALES ─── -->
+        <div class="charts-grid">
+
+            <!-- Gráfico 1: Estado del stock por categoría (Donut) -->
+            <div class="chart-card chart-donut-wrap">
+                <div class="chart-header">
+                    <h3>Estado del stock</h3>
+                    <span class="chart-sub">Distribución por estado</span>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chart-estado-stock"></canvas>
+                </div>
+                <div class="donut-legend" id="donut-legend"></div>
+            </div>
+
+            <!-- Gráfico 2: Movimientos por tipo (Barras) -->
+            <div class="chart-card chart-bar-wrap">
+                <div class="chart-header">
+                    <h3>Movimientos de inventario</h3>
+                    <span class="chart-sub">Entradas · Salidas · Mermas · Ajustes</span>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chart-movimientos"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 3: Top 5 productos con más movimientos (Horizontal bar) -->
+            <div class="chart-card chart-hbar-wrap">
+                <div class="chart-header">
+                    <h3>Top 5 productos más activos</h3>
+                    <span class="chart-sub">Por número de movimientos registrados</span>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chart-top-productos"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico 4: Stock actual vs mínimo (Radar / Comparativo) -->
+            <div class="chart-card chart-radar-wrap">
+                <div class="chart-header">
+                    <h3>Stock actual vs mínimo</h3>
+                    <span class="chart-sub">Productos en estado crítico</span>
+                </div>
+                <div class="chart-body">
+                    <canvas id="chart-stock-minimo"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── CANALES Y ALERTAS ─── -->
+        <div class="bottom-grid">
+
+            <!-- Canales de venta -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h3>Canales conectados</h3>
+                </div>
+                <div id="canales-lista" class="canales-lista"></div>
+            </div>
+
+            <!-- Alertas recientes -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h3>Alertas recientes</h3>
+                    <a href="alertas.html" class="link-ver-todo">Ver todas →</a>
+                </div>
+                <div id="alertas-recientes" class="alertas-recientes-lista"></div>
+            </div>
+
+            <!-- Productos recién sin stock -->
+            <div class="panel-card">
+                <div class="panel-header">
+                    <h3>Necesitan reposición</h3>
+                </div>
+                <div id="lista-reposicion" class="lista-reposicion"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/navbar.js?v=3"></script>
+    <script src="js/dashboard_charts.js?v=3"></script>
+</body>
+
+</html>
